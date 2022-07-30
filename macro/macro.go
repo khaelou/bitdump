@@ -26,26 +26,49 @@ func ExecuteMacro(id int, factory, role string, task string, execFunc ExecMacro)
 	ProductChannel <- productSignal
 }
 
-func TicketPool() map[int]string { // Yet to consider duplicate numbers
+func TicketPool() map[int]string {
 	var genAmount = 6
 	numberMap := make(map[int]string)
 
 	for i := 1; i <= genAmount; i++ {
 		if i != genAmount {
-			normalNumber := fmt.Sprintf("# %d", genNumber1To70())
+			normalNumber := fmt.Sprintf("#%d", genNumber1To70())
 			fmt.Println("\t", normalNumber)
+
+			for _, v := range numberMap {
+				if normalNumber == v {
+					fmt.Println("DUP**", normalNumber)
+				}
+			}
 
 			numberMap[i] = normalNumber
 		} else {
-			goldNumber := fmt.Sprintf("# %d", genNumber1To25())
+			goldNumber := fmt.Sprintf("#%d", genNumber1To25())
 			fmt.Println("\t", goldNumber, "GOLD")
 
 			numberMap[i] = goldNumber
 		}
 	}
+
+	if hasDupes(numberMap) {
+		fmt.Println("^ DUPLICATES FOUND.")
+	}
 	fmt.Println()
 
 	return numberMap
+}
+
+func hasDupes(m map[int]string) bool {
+	x := make(map[string]struct{})
+
+	for _, v := range m {
+		if _, has := x[v]; has {
+			return true
+		}
+		x[v] = struct{}{}
+	}
+
+	return false
 }
 
 func genNumber1To70() int {
