@@ -26,7 +26,7 @@ func ExecuteMacro(id int, factory, role string, task string, execFunc ExecMacro)
 	ProductChannel <- productSignal
 }
 
-func TicketPool() map[int]string {
+func TicketPool() map[int]string { // Yet to consider duplicate numbers
 	var genAmount = 6
 	numberMap := make(map[int]string)
 
