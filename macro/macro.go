@@ -46,6 +46,12 @@ func TicketPool() map[int]string {
 			goldNumber := fmt.Sprintf("#%d", genNumber1To25())
 			fmt.Println("\t", goldNumber, "GOLD")
 
+			for _, v := range numberMap {
+				if goldNumber == v {
+					fmt.Println("DUP**", goldNumber)
+				}
+			}
+
 			numberMap[i] = goldNumber
 		}
 	}
