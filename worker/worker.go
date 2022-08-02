@@ -1,10 +1,11 @@
 package worker
 
 import (
-	"bitdump/macro"
 	"context"
 	"fmt"
 	"log"
+
+	"bitdump/macro"
 )
 
 type Job struct {

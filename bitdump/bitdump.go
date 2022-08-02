@@ -1,12 +1,13 @@
 package bitdump
 
 import (
-	"bitdump/factory"
-	"bitdump/worker"
 	"context"
 	"fmt"
 	"log"
 	"time"
+
+	"bitdump/factory"
+	"bitdump/worker"
 )
 
 const REPEAT_CYCLE = false
