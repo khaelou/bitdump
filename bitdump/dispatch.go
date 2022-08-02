@@ -1,6 +1,8 @@
 package bitdump
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"math"
 
@@ -23,7 +25,7 @@ type Collector struct {
 	EndCycle chan bool
 }
 
-func StartDispatcher(targetFactory Factory, workerCount int) Collector {
+func StartDispatcher(ctx context.Context, targetFactory Factory, workerCount int) Collector {
 	var i int
 
 	input := make(chan worker.Job)
@@ -46,8 +48,8 @@ func StartDispatcher(targetFactory Factory, workerCount int) Collector {
 				JobChannel:    make(chan worker.Job),
 				EndShift:      make(chan bool),
 			}
-			worker.StartWorker()
 
+			worker.StartWorker(ctx)
 			SproutedWorkers = append(SproutedWorkers, worker)
 		}
 	}
@@ -55,9 +57,20 @@ func StartDispatcher(targetFactory Factory, workerCount int) Collector {
 	go func() {
 		for {
 			select {
+			case <-ctx.Done():
+				if err := ctx.Err(); err != nil {
+					_ = fmt.Sprintf("\nCTX DONE: %v", err)
+				}
+
+				// Close channels
+				close(collector.JobQueue)
+				close(collector.EndCycle)
+
+				//fmt.Printf("COMPLETE.\n\n")
+				return
 			case <-end:
 				for _, w := range SproutedWorkers {
-					w.StopWorker()
+					w.StopWorker(ctx)
 				}
 				return
 			case job := <-input:

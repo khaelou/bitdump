@@ -9,7 +9,7 @@ import (
 
 var ProductChannel = make(chan ProductSignal, math.MaxInt8)
 
-type ExecMacro func() map[int]string
+type ExecMacro func() interface{}
 
 type ProductSignal struct {
 	Product       interface{}
@@ -26,55 +26,60 @@ func ExecuteMacro(id int, factory, role string, task string, execFunc ExecMacro)
 	ProductChannel <- productSignal
 }
 
-func TicketPool() map[int]string {
+func TicketPool() interface{} {
 	var genAmount = 6
-	numberMap := make(map[int]string)
+	numberSlice := []string{}
 
+	fmt.Println("---- TICKET ----")
 	for i := 1; i <= genAmount; i++ {
 		if i != genAmount {
 			normalNumber := fmt.Sprintf("#%d", genNumber1To70())
-			fmt.Println("\t", normalNumber)
-
-			for _, v := range numberMap {
-				if normalNumber == v {
-					fmt.Println("DUP**", normalNumber)
-				}
-			}
-
-			numberMap[i] = normalNumber
+			numberSlice = append(numberSlice, normalNumber)
 		} else {
 			goldNumber := fmt.Sprintf("#%d", genNumber1To25())
-			fmt.Println("\t", goldNumber, "GOLD")
-
-			for _, v := range numberMap {
-				if goldNumber == v {
-					fmt.Println("DUP**", goldNumber)
-				}
-			}
-
-			numberMap[i] = goldNumber
+			numberSlice = append(numberSlice, goldNumber)
 		}
 	}
 
-	if hasDupes(numberMap) {
-		fmt.Println("^ DUPLICATES FOUND.")
+	return filterDuplicates(numberSlice)
+}
+
+func filterDuplicates(numbers []string) []string {
+	inResult := make(map[string]bool)
+	var result []string
+
+	for i, str := range numbers {
+		if _, ok := inResult[str]; !ok {
+			inResult[str] = true
+			result = append(result, str)
+
+			//fmt.Println("POS_TEST", result)
+
+			realI := i + 1
+			if realI < len(numbers) {
+				fmt.Println(">", str)
+			} else {
+				fmt.Println(">", str, "[GOLD]")
+			}
+		} else {
+			fillIn := fmt.Sprintf("#%d", genNumber1To70())
+			fillInGold := fmt.Sprintf("#%d", genNumber1To25())
+
+			result = append(result, fillIn)
+
+			//fmt.Println("NEG_TEST", result)
+
+			realI := i + 1
+			if realI < len(numbers) {
+				fmt.Println(">", fillIn)
+			} else {
+				fmt.Println(">", fillInGold, "[GOLD]")
+			}
+		}
 	}
 	fmt.Println()
 
-	return numberMap
-}
-
-func hasDupes(m map[int]string) bool {
-	x := make(map[string]struct{})
-
-	for _, v := range m {
-		if _, has := x[v]; has {
-			return true
-		}
-		x[v] = struct{}{}
-	}
-
-	return false
+	return result
 }
 
 func genNumber1To70() int {
